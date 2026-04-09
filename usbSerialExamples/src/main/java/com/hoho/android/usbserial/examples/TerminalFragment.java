@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -211,8 +212,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             driver = CustomProber.getCustomProber().probeDevice(device);
         }
         if(driver == null) {
-            status("connection failed: no driver for device");
-            return;
+            // fallback: try CdcAcmSerialDriver for any unrecognized device
+            driver = new CdcAcmSerialDriver(device);
         }
         if(portNum >= driver.getPorts().size()) {
             status("connection failed: not enough ports at device");
