@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
@@ -237,6 +238,34 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 status("connection failed: open failed");
             return;
         }
+
+        // === DEBUG: dump device interfaces & endpoints ===
+        StringBuilder debugInfo = new StringBuilder();
+        debugInfo.append("Device: VID=0x").append(Integer.toHexString(device.getVendorId()))
+                .append(" PID=0x").append(Integer.toHexString(device.getProductId()))
+                .append(" Interfaces=").append(device.getInterfaceCount()).append("\n");
+        for (int i = 0; i < device.getInterfaceCount(); i++) {
+            android.hardware.usb.UsbInterface intf = device.getInterface(i);
+            debugInfo.append("  Interface ").append(i)
+                    .append(": id=").append(intf.getId())
+                    .append(" class=0x").append(Integer.toHexString(intf.getInterfaceClass()))
+                    .append(" subclass=0x").append(Integer.toHexString(intf.getInterfaceSubclass()))
+                    .append(" protocol=0x").append(Integer.toHexString(intf.getInterfaceProtocol()))
+                    .append(" endpoints=").append(intf.getEndpointCount()).append("\n");
+            for (int j = 0; j < intf.getEndpointCount(); j++) {
+                android.hardware.usb.UsbEndpoint ep = intf.getEndpoint(j);
+                debugInfo.append("    Endpoint ").append(j)
+                        .append(": addr=0x").append(Integer.toHexString(ep.getAddress()))
+                        .append(" dir=").append(ep.getDirection() == android.hardware.usb.UsbConstants.USB_DIR_IN ? "IN" : "OUT")
+                        .append(" type=").append(ep.getType() == android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK ? "BULK" :
+                                ep.getType() == android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_INT ? "INT" :
+                                ep.getType() == android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_CONTROL ? "CTRL" : "ISO")
+                        .append(" maxPkt=").append(ep.getMaxPacketSize()).append("\n");
+            }
+        }
+        Log.d("USB_DEBUG", debugInfo.toString());
+        status(debugInfo.toString());
+        // === END DEBUG ===
 
         try {
             usbSerialPort.open(usbConnection);
