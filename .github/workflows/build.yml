@@ -1,6 +1,12 @@
 name: build
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (例如 v1.0.0，不填则默认不发布Release)'
+        required: false
 
 jobs:
   build:
@@ -24,6 +30,7 @@ jobs:
         path: '**/*.apk'
     - name: Publish target APK to Github Release
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag_name != ''
       with:
+        tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
         files: '**/*.apk'
