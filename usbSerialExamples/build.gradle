@@ -1,15 +1,21 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    namespace 'com.hoho.android.usbserial.examples'
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 35
+        vectorDrawables.useSupportLibrary = true
 
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+        missingDimensionStrategy 'device', 'anyDevice'
     }
 
     buildTypes {
@@ -17,8 +23,11 @@ android {
             minifyEnabled true
         }
     }
+    namespace 'com.hoho.android.usbserial.examples'
 }
 
 dependencies {
     implementation project(':usbSerialForAndroid')
+    implementation 'androidx.appcompat:appcompat:1.6.1' // later versions have minsdk 21
+    implementation 'com.google.android.material:material:1.11.0' // later versions have minsdk 19
 }
