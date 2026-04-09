@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
@@ -134,12 +135,12 @@ public class DevicesFragment extends ListFragment {
             if(driver == null) {
                 driver = usbCustomProber.probeDevice(device);
             }
-            if(driver != null) {
-                for(int port = 0; port < driver.getPorts().size(); port++)
-                    listItems.add(new ListItem(device, port, driver));
-            } else {
-                listItems.add(new ListItem(device, 0, null));
+            if(driver == null) {
+                // fallback: try CdcAcmSerialDriver for any unrecognized device
+                driver = new CdcAcmSerialDriver(device);
             }
+            for(int port = 0; port < driver.getPorts().size(); port++)
+                listItems.add(new ListItem(device, port, driver));
         }
         listAdapter.notifyDataSetChanged();
     }

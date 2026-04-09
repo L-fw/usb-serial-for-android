@@ -17,8 +17,13 @@ jobs:
       run: |
         chmod +x gradlew
         ./gradlew assembleDebug
-    - name: Upload APK
+    - name: Upload APK to Artifact
       uses: actions/upload-artifact@v4
       with:
         name: debug-apk
         path: '**/*.apk'
+    - name: Publish target APK to Github Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: '**/*.apk'
